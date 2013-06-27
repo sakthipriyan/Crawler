@@ -19,9 +19,9 @@ public class Config {
 			this.initBooksLimit = Integer.parseInt(prop.getProperty(
 					"init.books.limit", "2"));
 			this.reviewersLimit = Integer.parseInt(prop.getProperty(
-					"reviewers.limit", "2"));
+					"reviewers.limit", "2")) + 1;
 			this.booksLimit = Integer.parseInt(prop.getProperty("books.limit",
-					"2"));
+					"2")) + 1;
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			throw new RuntimeException("Properties file not found");

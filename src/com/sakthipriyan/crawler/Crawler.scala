@@ -7,15 +7,16 @@ object Crawler {
 
   //Load from properties files.
   val config = Config.getInstance()
+  val hadoop = Hadoop.getInstance()
 
   def saveReviews(book: String) = {
-    if (Hadoop.isBookAvailable(book)) {
-      println("Skipping " + book + " as it is already crawled")
+    if (hadoop.isBookAvailable(book)) {
+      println("Skipping available book " + book)
       None
     } else {
       val reviews = GoodReads.listComments(book, config.getReviewersLimit())
       for (review <- reviews) {
-        Hadoop.writeReviewToFile(review)
+        hadoop.writeReviewToFile(review)
       }
       Some(reviews)
     }
