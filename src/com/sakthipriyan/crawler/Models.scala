@@ -1,3 +1,5 @@
-case class Book(title:String)
+package com.sakthipriyan.crawler
 
-case class Review(user:String, text:String, stars:Integer)
+case class Book(title: String)
+
+case class Review(book:String,user: String, text: String, star: String)
