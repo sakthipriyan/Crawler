@@ -4,85 +4,86 @@ import scala.collection.mutable.ArrayBuffer
 
 object GoodReads {
 
-  def getBook(book: String) = readUrl("http://www.goodreads.com/book/show/" + book)
-
-  def getPage(page: Integer) = readUrl("http://www.goodreads.com/list/show/6.Best_Books_of_the_20th_Century?page=" + page)
-
-  def getUser(user: String) = readUrl("http://www.goodreads.com/review/list/" + user + "?sort=review&view=reviews")
-
-  def getBooks(page: String): Array[String] = {
-    val output = new ArrayBuffer[String]
-    val start = """<tr itemscope itemtype="http://schema.org/Book">"""
-    var startIndex = page.indexOf(start)
-    while (startIndex != -1) {
-      startIndex = page.indexOf("""<a href="/book/show/""", startIndex)
-      val endIndex = page.indexOf("""title""", startIndex)
-      output += page.substring(startIndex + 20, endIndex - 2)
-      startIndex = page.indexOf(start, startIndex)
-    }
-    output.toArray
-  }
-
-  def listReviewedBooks(user: String, limit:Integer = 30) = {
-    val output = new ArrayBuffer[String]
-    val page = getUser(user)
-    var startIndex = page.indexOf("""<tr id="review_""")
-    while (startIndex != -1) {
-      startIndex = page.indexOf("""<td class="field title">""", startIndex)
-      startIndex = page.indexOf("""<a href="""", startIndex)
-      val endIndex = page.indexOf("""title="""", startIndex) - 2
-      output += page.substring(startIndex + 20, endIndex)
-      startIndex = page.indexOf("""<tr id="review_""",startIndex)
-    }
-    output.slice(0,limit).toSet
-  }
-
-  def listBooks(limit: Integer): Set[String] = {
+  def listBooks(limit: Integer) = {
     val output = new ArrayBuffer[String]
     val index = limit / 100 + 1
     for (a <- 1 to index) {
       val page = getPage(a)
       output ++= getBooks(page)
     }
-    output.slice(0, limit).toSet
+    output.slice(0, limit).toArray
   }
 
-  def listComments(book: String, limit:Integer = 30) : Set[Review] = {
+  def listComments(book: String, limit: Integer = 30) = {
     val page = getBook(book)
     val output = new ArrayBuffer[Review]
     var startIndex = page.indexOf("""<div class="friendReviews elementListBrown">""")
     while (startIndex != -1) {
-      startIndex = page.indexOf("""<div class="left bodycol">""", startIndex + 1)
-      startIndex = page.indexOf("""<a href="/user/show/""", startIndex + 1)
-      var endIndex = page.indexOf("""class=""", startIndex + 1)
-      val user = page.substring(startIndex + 20, endIndex - 2)
-      startIndex = page.indexOf("staticStars", startIndex + 1)
-      endIndex = page.indexOf("title=", startIndex + 1)
-      val stars = page.substring(startIndex + 12, endIndex - 2)
-      startIndex = page.indexOf("""<span id="reviewTextContainer""", startIndex + 1)
-      startIndex = page.indexOf("""style="display:none">""", startIndex)
+      startIndex = page.indexOf("""<div class="left bodycol">""", startIndex)
+      startIndex = page.indexOf("""<a href="/user/show/""", startIndex) + 20
+      var endIndex = page.indexOf("""class=""", startIndex) - 2
+      val user = page.substring(startIndex, endIndex)
+      startIndex = page.indexOf("staticStars", startIndex) + 12
+      endIndex = page.indexOf("title=", startIndex) - 2
+      val stars = page.substring(startIndex, endIndex)
+      startIndex = page.indexOf("""<span id="reviewTextContainer""", startIndex)
+      startIndex = page.indexOf("""style="display:none">""", startIndex) + 21
       endIndex = page.indexOf("""<a""", startIndex)
-      val comments = page.substring(startIndex + 21, endIndex).replaceAll("""<(?!\/?a(?=>|\s.*>))\/?.*?>""", "")
+      val comments = page.substring(startIndex, endIndex).
+        replaceAll("\\<.*?>", "").replaceAll("[^a-zA-Z']", " ").replaceAll(" +", " ").trim()
+
       val star = stars match {
         case "stars_1" => "bad"
-        case "stars_2" => "avg"
-        case "stars_3" => "avg"
-        case "stars_4" => "gud"
-        case "stars_5" => "gud"
+        case "stars_2" => "average"
+        case "stars_3" => "average"
+        case "stars_4" => "good"
+        case "stars_5" => "good"
         case _ => "xyz"
       }
-      output += Review(book,user, comments, star)
+      output += Review(book, user, comments, star)
       startIndex = page.indexOf("""<div class="friendReviews elementListBrown">""", startIndex)
     }
-    output.slice(0, limit).toSet
+    output.slice(0, limit).toArray
   }
+
+  def listReviewedBooks(user: String, limit: Integer = 30) = {
+    val output = new ArrayBuffer[String]
+    val page = getUser(user)
+    var startIndex = page.indexOf("""<tr id="review_""")
+    while (startIndex != -1) {
+      startIndex = page.indexOf("""<td class="field title">""", startIndex)
+      startIndex = page.indexOf("""<a href="""", startIndex) + 20
+      val endIndex = page.indexOf("""title="""", startIndex) - 2
+      output += page.substring(startIndex, endIndex)
+      startIndex = page.indexOf("""<tr id="review_""", startIndex)
+    }
+    output.slice(0, limit).toArray
+  }
+
+  private def getBooks(page: String): Array[String] = {
+    val output = new ArrayBuffer[String]
+    var startIndex = page.indexOf("""<tr itemscope itemtype="http://schema.org/Book">""")
+    while (startIndex != -1) {
+      startIndex = page.indexOf("""<a href="/book/show/""", startIndex) + 20
+      val endIndex = page.indexOf("""title""", startIndex) - 2
+      output += page.substring(startIndex, endIndex)
+      startIndex = page.indexOf("""<tr itemscope itemtype="http://schema.org/Book">""", startIndex)
+    }
+    output.toArray
+  }
+
+  private def getBook(book: String) = readUrl("http://www.goodreads.com/book/show/" + book)
+
+  private def getPage(page: Integer) = readUrl("http://www.goodreads.com/list/show/6.Best_Books_of_the_20th_Century?page=" + page)
+
+  private def getUser(user: String) = readUrl("http://www.goodreads.com/review/list/" + user + "?sort=review&view=reviews")
 
   private def readUrl(url: String) = {
     println("Fetching url:" + url)
     val source = scala.io.Source.fromURL(url)
     val lines = source.mkString
     source.close()
-    lines.stripLineEnd
+    lines
   }
 
 }
