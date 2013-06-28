@@ -46,4 +46,8 @@ object CrawlingActors {
     println("Shutting Akka system")
     bookActor ! "shutdown"
   }
+  system.scheduler.schedule(1 minute, 30 seconds){
+    println("Hinting garbage collection to JVM")
+    System.gc()
+  }
 }
