@@ -6,7 +6,7 @@ object GoodReads {
 
   def listBooks(limit: Integer) = {
     val output = new ArrayBuffer[Book]
-    val index = limit / 100 + 1
+    val index = Math.floor((limit / 100.0)).toInt
     for (a <- 1 to index) {
       val page = getPage(a)
       output ++= getBooks(page)
