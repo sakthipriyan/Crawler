@@ -62,7 +62,7 @@ public class Hadoop {
 
 			// Create a new file and write data to it.
 			FSDataOutputStream out = fs.create(path);
-			out.writeUTF(review.text());
+			out.write(review.text().getBytes("US-ASCII"));
 			out.close();
 			
 			System.out.println("Created file:" + filename);
