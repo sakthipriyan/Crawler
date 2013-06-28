@@ -8,32 +8,36 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 public class Hadoop {
-	
+
 	private static Hadoop hadoop;
 
 	public static Hadoop getInstance() {
-		if(hadoop == null){
+		if (hadoop == null) {
 			hadoop = new Hadoop();
 		}
 		return hadoop;
 	}
-	
+
 	private Configuration conf;
-	
-	private Hadoop(){
+	private FileSystem fs;
+
+	private Hadoop() {
 		this.conf = new Configuration();
 		this.conf.addResource(new Path("/usr/etc/hadoop/core-site.xml"));
 		this.conf.addResource(new Path("/usr/etc/hadoop/hdfs-site.xml"));
+		try {
+			this.fs = FileSystem.get(conf);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isBookAvailable(String book) {
-		
 		try {
-			FileSystem fileSystem = FileSystem.get(conf);
 			String directories[] = getBookPaths(book);
 			for (String directory : directories) {
 				Path path = new Path(directory);
-				if (fileSystem.exists(path)) {
+				if (this.fs.exists(path)) {
 					return true;
 				}
 			}
@@ -50,22 +54,17 @@ public class Hadoop {
 				return;
 			}
 
-			Configuration conf = new Configuration();
-			conf.addResource(new Path("/usr/etc/hadoop/core-site.xml"));
-			conf.addResource(new Path("/usr/etc/hadoop/hdfs-site.xml"));
-
-			FileSystem fileSystem = FileSystem.get(conf);
 			String filename = getFileName(review);
 			Path path = new Path(filename);
-			if (fileSystem.exists(path)) {
+			if (fs.exists(path)) {
 				return;
 			}
 
 			// Create a new file and write data to it.
-			FSDataOutputStream out = fileSystem.create(path);
+			FSDataOutputStream out = fs.create(path);
 			out.writeUTF(review.text());
 			out.close();
-			fileSystem.close();
+			
 			System.out.println("Created file:" + filename);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -83,5 +82,14 @@ public class Hadoop {
 				String.format(formatter, "average", book),
 				String.format(formatter, "good", book) };
 		return array;
+	}
+	
+	@Override
+	public void finalize(){
+		try {
+			fs.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

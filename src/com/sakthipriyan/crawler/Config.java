@@ -7,6 +7,8 @@ public class Config {
 	private int initBooksLimit;
 	private int reviewersLimit;
 	private int booksLimit;
+	private int bookActors;
+	private int userActors;
 
 	private Config() {
 		Properties prop = new Properties();
@@ -19,9 +21,14 @@ public class Config {
 			this.initBooksLimit = Integer.parseInt(prop.getProperty(
 					"init.books.limit", "2"));
 			this.reviewersLimit = Integer.parseInt(prop.getProperty(
-					"reviewers.limit", "2")) + 1;
+					"reviewers.limit", "2"));
 			this.booksLimit = Integer.parseInt(prop.getProperty("books.limit",
-					"2")) + 1;
+					"2"));
+			this.bookActors = Integer.parseInt(prop.getProperty("book.actors",
+					"2"));
+			this.userActors = Integer.parseInt(prop.getProperty("user.actors",
+					"2"));
+
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			throw new RuntimeException("Properties file not found");
@@ -41,24 +48,20 @@ public class Config {
 		return initBooksLimit;
 	}
 
-	public void setInitBooksLimit(int initBooksLimit) {
-		this.initBooksLimit = initBooksLimit;
-	}
-
 	public int getReviewersLimit() {
 		return reviewersLimit;
-	}
-
-	public void setReviewersLimit(int reviewersLimit) {
-		this.reviewersLimit = reviewersLimit;
 	}
 
 	public int getBooksLimit() {
 		return booksLimit;
 	}
 
-	public void setBooksLimit(int booksLimit) {
-		this.booksLimit = booksLimit;
+	public int getBookActors() {
+		return bookActors;
+	}
+
+	public int getUserActors() {
+		return userActors;
 	}
 
 	@Override
@@ -66,7 +69,5 @@ public class Config {
 		return "Config [initBooksLimit=" + initBooksLimit + ", reviewersLimit="
 				+ reviewersLimit + ", booksLimit=" + booksLimit + "]";
 	}
-	
-	
 
 }

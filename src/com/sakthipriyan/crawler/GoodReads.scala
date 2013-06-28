@@ -5,7 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 object GoodReads {
 
   def listBooks(limit: Integer) = {
-    val output = new ArrayBuffer[String]
+    val output = new ArrayBuffer[Book]
     val index = limit / 100 + 1
     for (a <- 1 to index) {
       val page = getPage(a)
@@ -60,13 +60,13 @@ object GoodReads {
     output.slice(0, limit).toArray
   }
 
-  private def getBooks(page: String): Array[String] = {
-    val output = new ArrayBuffer[String]
+  private def getBooks(page: String): Array[Book] = {
+    val output = new ArrayBuffer[Book]
     var startIndex = page.indexOf("""<tr itemscope itemtype="http://schema.org/Book">""")
     while (startIndex != -1) {
       startIndex = page.indexOf("""<a href="/book/show/""", startIndex) + 20
       val endIndex = page.indexOf("""title""", startIndex) - 2
-      output += page.substring(startIndex, endIndex)
+      output += Book(page.substring(startIndex, endIndex),true)
       startIndex = page.indexOf("""<tr itemscope itemtype="http://schema.org/Book">""", startIndex)
     }
     output.toArray
