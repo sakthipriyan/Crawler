@@ -66,6 +66,7 @@ public class Hadoop {
 			out.writeUTF(review.text());
 			out.close();
 			fileSystem.close();
+			System.out.println("Created file:" + filename);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -79,8 +80,8 @@ public class Hadoop {
 	private String[] getBookPaths(String book) {
 		String formatter = "/crawler/%s/%s";
 		String[] array = { String.format(formatter, "bad", book),
-				String.format(formatter, "avg", book),
-				String.format(formatter, "gud", book) };
+				String.format(formatter, "average", book),
+				String.format(formatter, "good", book) };
 		return array;
 	}
 }
