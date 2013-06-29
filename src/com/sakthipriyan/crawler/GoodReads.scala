@@ -30,7 +30,7 @@ object GoodReads {
       startIndex = page.indexOf("""style="display:none">""", startIndex) + 21
       endIndex = page.indexOf("""<a""", startIndex)
       val comments = page.substring(startIndex, endIndex).
-        replaceAll("\\<.*?>", "").replaceAll("[^a-zA-Z']", " ").replaceAll(" +", " ").trim()
+      replaceAll("\\<.*?>", "").replaceAll("[^a-zA-Z]", " ").replaceAll(" +", " ").trim
 
       val star = stars match {
         case "stars_1" => "bad"
