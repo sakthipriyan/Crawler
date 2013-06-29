@@ -28,8 +28,12 @@ public class WordCount {
 			String line = value.toString();
 			StringTokenizer tokenizer = new StringTokenizer(line);
 			while (tokenizer.hasMoreTokens()) {
-				word.set(tokenizer.nextToken());
-				context.write(word, one);
+				String str = tokenizer.nextToken();
+				if(str.length() > 3){
+					word.set(str.toLowerCase());
+					context.write(word, one);	
+				}
+				
 			}
 		}
 	}
